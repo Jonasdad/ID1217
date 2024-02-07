@@ -3,10 +3,12 @@
 #include <stdlib.h>
 #include <string.h>
 // Constants
-#define MAX_WORDS 25143
-#define INPUT_PATH "words.txt"
+//#define MAX_WORDS 25143
+#define MAX_WORDS 57106
+//#define MAX_WORDS 104334
+
+#define INPUT_PATH "words3.txt"
 #define OUTPUT_PATH "output.txt"
-#define NUM_THREADS 4
 // Global Variables
 char* words[MAX_WORDS];
 FILE *input;
@@ -20,33 +22,62 @@ int compare(const void *a, const void *b);
 
 // Main Function
 int main(int argc, char *argv[]) {
-    int semordnilaps = 0;
-    input = fopen("words.txt", "r");
+    int NUM_THREADS = atoi(argv[1]);
+
+    int *semordnilaps = calloc(NUM_THREADS, sizeof(int)); // Initialize an array of counters
+    input = fopen(INPUT_PATH, "r");
+    if (input == NULL) {
+        printf("Error: Could not open file %s\n", INPUT_PATH);
+        return 1;  // Return an error code
+    }
     fileReader(input);
-    output = fopen("output.txt", "w");
+    output = fopen(OUTPUT_PATH, "w");
+    if (output == NULL) {
+        printf("Error: Could not open file %s\n", OUTPUT_PATH);
+        return 1;  // Return an error code
+    }
+    output = fopen(OUTPUT_PATH, "w");
     qsort(words, MAX_WORDS, sizeof(char*), compare);
-        #pragma omp parallel for reduction(+:semordnilaps) num_threads(NUM_THREADS)
+    double start_time = omp_get_wtime();
+    #pragma omp parallel num_threads(NUM_THREADS)
+    {
+        int thread_id = omp_get_thread_num();
+        #pragma omp for
         for(int i = 0; i < MAX_WORDS; i++){
             if(isPalindrome(words[i])){
-                semordnilaps++;
+                semordnilaps[thread_id]++;
                 {
-                    printf("%s\n", words[i]);
                     fprintf(output, "%s\n", words[i]);
                 }
             }
             else{
                 char* reversed = reverse(words[i]);
-                if(bsearch(&reversed, words , MAX_WORDS , sizeof(char*), compare)!= NULL){
-                    semordnilaps++;
+                if(bsearch(&reversed, words + i, MAX_WORDS-i , sizeof(char*), compare)!= NULL){
+                    semordnilaps[thread_id] += 2;
                     {
-                        printf("%s\n", words[i]);
                         fprintf(output, "%s\n", words[i]);
+                        fprintf(output, "%s\n", reversed);
                     }
                 }
             }
         }
+    }
+    double end_time = omp_get_wtime();
+    double elapsed_time = end_time - start_time;
+
+    // Print the count of semordnilaps found by each thread
+    int total = 0;
+    for(int i = 0; i < NUM_THREADS; i++){
+        printf("Thread %d found %d semordnilaps\n", i, semordnilaps[i]);
+        total += semordnilaps[i];
+    }
+
+    // Don't forget to free the allocated memory
+    free(semordnilaps);
+
+    printf("Elapsed time: %f seconds\n", elapsed_time);
     fclose(output);
-    printf("Number of semordnilaps: %d\n", semordnilaps);
+    printf("Number of semordnilaps: %d\n", total);
 
     return 0;
 }
