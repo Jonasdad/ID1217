@@ -67,6 +67,5 @@ void* produce(){
             sleep(1);
         }
         sem_post(&Eatsemaphore);
-
     }
 }
