@@ -46,8 +46,8 @@ void* consume(void* arg){
         if(worms > 0){
             int worms_left = --worms;
             printf("Baby bird #%ld ate a worm, %d left\n", bird_ID, worms_left);
-            sem_post(&Eatsemaphore);
             sleep(1);
+            sem_post(&Eatsemaphore);
         }
         else{
             printf("Baby bird #%d is chirping\n", bird_ID);
@@ -61,7 +61,8 @@ void* produce(){
     while(1){
         sem_wait(&Fillsemaphore);
         if(worms == 0){
-            worms = 10;
+            srand(time(NULL));
+            worms = rand() % MAX_WORMS + 1;
             printf("Mama bird gathered %d worms\n", worms);
             sleep(1);
         }
