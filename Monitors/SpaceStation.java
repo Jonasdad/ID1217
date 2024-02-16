@@ -16,9 +16,6 @@ public class SpaceStation implements Runnable {
     String WHITE = "\u001B[37m";
     public static void main(String[] args) {
 
-    
-
-
         SpaceStation station = new SpaceStation();
         for (int i = 0; i < 8; i++) {
             Thread thread = new Thread(station);
@@ -39,6 +36,26 @@ public class SpaceStation implements Runnable {
         }
         System.out.println(GREEN + Thread.currentThread().getName() + " refueled station: " + "+" + fuel_nitrogen
                 + " nitrogen and " + "+" + fuel_quantum_fluid + " quantum fluid."+RESET);
+    }
+
+    public void refuel_supply_shuttle(){
+        int nitrogen_requested = rand.nextInt(50, 200);
+        int quantum_fluid_requested = rand.nextInt(10, 100);
+        synchronized (this) {
+            while (nitrogen < nitrogen_requested || quantum_fluid < quantum_fluid_requested) {
+                try {
+                    System.out.println(RED +"Not enough fuel for supply " + Thread.currentThread().getName() + " waiting for refuel." + RESET);
+                    wait();
+                } catch (InterruptedException e) {
+                    System.out.println("Thread " + Thread.currentThread() + " interrupted.");
+                }
+            }
+            nitrogen -= nitrogen_requested;
+            quantum_fluid -= quantum_fluid_requested;
+            print_status();
+        }
+        System.out.println(GREEN + "Supply " + Thread.currentThread().getName() + " refueled with " + nitrogen_requested + " nitrogen and "
+                + quantum_fluid_requested + " quantum fluid."+ RESET);
     }
 
     public void refuel_shuttle() {
@@ -84,7 +101,7 @@ public class SpaceStation implements Runnable {
                     decrement_free();
                     System.out.println(CYAN + "Supply "+Thread.currentThread().getName() + " arrived, " + free + " free slots left." + RESET);
                     refuel_station();
-                    refuel_shuttle();
+                    refuel_supply_shuttle();
                     Thread.sleep(rand.nextInt(5000, 6000));
                     increment_free();
                     System.out.println(CYAN + "Supply "+Thread.currentThread().getName() + " departed, " + free + " free slots left." + RESET);
