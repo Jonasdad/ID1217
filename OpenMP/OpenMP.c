@@ -37,7 +37,7 @@ int main(int argc, char *argv[]) {
         return 1;  // Return an error code
     }
     output = fopen(OUTPUT_PATH, "w");
-    qsort(words, MAX_WORDS, sizeof(char*), compare);
+    qsort(words, MAX_WORDS, sizeof(char*), compare); // Sort the words array
     double start_time = omp_get_wtime();
     #pragma omp parallel num_threads(NUM_THREADS)
     {
