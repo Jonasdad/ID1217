@@ -8,6 +8,9 @@ public class SpaceStation implements Runnable {
     int free = 6;
     int nitrogen = 10000;
     int quantum_fluid = 5000;
+    int max_nitrogen = 16000;
+    int max_quantum_fluid = 8000;
+    
     String RESET = "\u001B[0m";
     String BLACK = "\u001B[30m";
     String RED = "\u001B[31m";
@@ -25,8 +28,10 @@ public class SpaceStation implements Runnable {
     Map<String, Integer> arrivalCounts = new HashMap<String, Integer>();
 
     public static void main(String[] args) {
-
+        System.out.println("Initializing Space Station");
+        System.out.print("Current values: ");
         SpaceStation station = new SpaceStation();
+        station.print_status();
         Thread[] threads = new Thread[8];
         for (int i = 0; i < 8; i++) {
             threads[i] = new Thread(station);
@@ -36,7 +41,12 @@ public class SpaceStation implements Runnable {
         ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
         executor.schedule(() -> {
             for (Thread thread : threads) {
-                thread.interrupt();
+                try{
+                    thread.interrupt();
+                }
+                catch(Exception e){
+
+                }
             }
         }, 30, TimeUnit.SECONDS);
 
@@ -44,9 +54,9 @@ public class SpaceStation implements Runnable {
             try {
                 thread.join();
             } catch (InterruptedException e) {
-                e.printStackTrace();
             }
         }
+
 
         System.out.println("\nStatistics:");
         System.out.println("Total amount station refueled: " + station.total_station_refuel);
@@ -59,40 +69,60 @@ public class SpaceStation implements Runnable {
     }
 
     public void refuel_station() {
-        int fuel_nitrogen = rand.nextInt(2000, 4000);
-        int fuel_quantum_fluid = rand.nextInt(1000, 2000);
+        int fuel_nitrogen = 6000;
+        int fuel_quantum_fluid = 2500;
         synchronized (this) {
-            nitrogen += fuel_nitrogen;
-            quantum_fluid += fuel_quantum_fluid;
-            total_station_refuel += fuel_nitrogen + fuel_quantum_fluid;
-            print_status();
-            notifyAll();
-        }
-        System.out.println(
+            if(nitrogen + fuel_nitrogen > max_nitrogen){
+                System.out.println(RED + "Nitrogen tank is full, Supply " + Thread.currentThread().getName() + " waiting for consumption." + RESET);
+                while(nitrogen + fuel_nitrogen > max_nitrogen){
+                    try{
+                    wait();
+                    }
+                    catch(Exception e ){
+                    }
+                }
+            }
+            if(quantum_fluid + fuel_quantum_fluid > max_quantum_fluid){
+                System.out.println(RED + "Quantum fluid tank is full, Supply " + Thread.currentThread().getName() + " waiting for consumption." + RESET);
+                while(quantum_fluid + fuel_quantum_fluid > max_quantum_fluid){
+                    try{
+                        wait();
+                    }   
+                    catch(Exception e ){
+                    }
+                }
+            }
+                nitrogen += fuel_nitrogen;
+                quantum_fluid += fuel_quantum_fluid;
+                total_station_refuel += fuel_nitrogen + fuel_quantum_fluid;
+                notifyAll();   
+            }
+            System.out.println(
                 BLUE + "Supply " + Thread.currentThread().getName() + " refueled station: " + "+" + fuel_nitrogen
-                        + " nitrogen and " + "+" + fuel_quantum_fluid + " quantum fluid." + RESET);
-    }
+                + " nitrogen and " + "+" + fuel_quantum_fluid + " quantum fluid." + RESET);
+                print_status();
+            }
 
     public void refuel_supply_shuttle() {
         int nitrogen_requested = rand.nextInt(500, 1500);
         int quantum_fluid_requested = rand.nextInt(100, 800);
-        synchronized (this) {
-            while (nitrogen < nitrogen_requested || quantum_fluid < quantum_fluid_requested) {
-                try {
-                    System.out.println(RED + "Not enough fuel for supply " + Thread.currentThread().getName()
-                            + " waiting for refuel." + RESET);
-                    wait();
-                } catch (InterruptedException e) {
-                }
+        while (nitrogen < nitrogen_requested || quantum_fluid < quantum_fluid_requested) {
+            try {
+                System.out.println(RED + "Not enough fuel for supply " + Thread.currentThread().getName()
+                + " waiting for refuel." + RESET);
+                wait();
+            } catch (InterruptedException e) {
             }
+        }
+        synchronized (this) {
             nitrogen -= nitrogen_requested;
             quantum_fluid -= quantum_fluid_requested;
             total_shuttle_refuels += nitrogen_requested + quantum_fluid_requested;
+            System.out.println(PURPLE + "Supply " + Thread.currentThread().getName() + " refueled with "
+            + nitrogen_requested + " nitrogen and "
+            + quantum_fluid_requested + " quantum fluid." + RESET);
             print_status();
         }
-        System.out.println(PURPLE + "Supply " + Thread.currentThread().getName() + " refueled with "
-                + nitrogen_requested + " nitrogen and "
-                + quantum_fluid_requested + " quantum fluid." + RESET);
     }
 
     public void refuel_shuttle() {
@@ -107,14 +137,20 @@ public class SpaceStation implements Runnable {
                 } catch (InterruptedException e) {
                 }
             }
+            if((nitrogen - nitrogen_requested + 5000) < max_nitrogen){
+                notifyAll();
+            }
+            if(quantum_fluid - quantum_fluid_requested + 2000 < max_quantum_fluid){
+                notifyAll();
+            }
             nitrogen -= nitrogen_requested;
             quantum_fluid -= quantum_fluid_requested;
             total_shuttle_refuels += nitrogen_requested + quantum_fluid_requested;
+            System.out.println(GREEN + "Space " + Thread.currentThread().getName() + " refueled with " + nitrogen_requested
+            + " nitrogen and "
+            + quantum_fluid_requested + " quantum fluid." + RESET);
             print_status();
         }
-        System.out.println(GREEN + "Space " + Thread.currentThread().getName() + " refueled with " + nitrogen_requested
-                + " nitrogen and "
-                + quantum_fluid_requested + " quantum fluid." + RESET);
     }
 
     public synchronized void increment_free() throws InterruptedException {
@@ -140,8 +176,8 @@ public class SpaceStation implements Runnable {
         try {
             while (true) {
                 int type = rand.nextInt(100);
-                if (type <= 30) {
-                    Thread.sleep(rand.nextInt(1500, 5000));
+                if (type <= 25){
+                    Thread.sleep(rand.nextInt(3000, 5000));
                     arrivalCounts.put(Thread.currentThread().getName(),
                             arrivalCounts.getOrDefault(Thread.currentThread().getName(), 0) + 1);
                     decrement_free();
@@ -168,7 +204,6 @@ public class SpaceStation implements Runnable {
                 }
             }
         }
-
         catch (InterruptedException e) {
         }
     }

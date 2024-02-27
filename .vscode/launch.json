@@ -8,8 +8,8 @@
       "args": [],
       "stopAtEntry": false,
       "externalConsole": true,
-      "cwd": "c:/ID1217/ID1217/OpenMP",
-      "program": "c:/ID1217/ID1217/OpenMP/build/Debug/outDebug",
+      "cwd": "c:/ID1217/ID1217/Semaphores",
+      "program": "c:/ID1217/ID1217/Semaphores/build/Debug/outDebug",
       "MIMode": "gdb",
       "miDebuggerPath": "gdb",
       "setupCommands": [
