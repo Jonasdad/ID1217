@@ -1,14 +1,14 @@
 public class body{
 
-int mass;
-int x;
-int y;
-int velocityX;
-int velocityY;
+double mass;
+double x;
+double y;
+double velocityX;
+double velocityY;
 int ID;
 
 
-public body(int ID, int mass, int x, int y, int velocityX, int velocityY){
+public body(int ID, int mass, double x, double y, double velocityX, double velocityY){
     this.ID = ID;
     this.mass = mass;
     this.x = x;
@@ -18,11 +18,11 @@ public body(int ID, int mass, int x, int y, int velocityX, int velocityY){
 }
 
 
-public int getX(){
+public double getX(){
     return x;
 }
 
-public int getY(){
+public double getY(){
     return y;
 }
 
@@ -34,21 +34,21 @@ public void setY(int y){
     this.y = y;
 }
 
-public int getMass(){
+public double getMass(){
     return mass;
 }
 
-public void setMass(int mass){
+public void setMass(double mass){
     this.mass = mass;
 }
 
-public int getVelocityX(){
+public double getVelocityX(){
     return velocityX;}
-public int getVelocityY(){
+public double getVelocityY(){
     return velocityY;}
-public void setVelocityX(int velocityX){
+public void setVelocityX(double velocityX){
     this.velocityX = velocityX;}
-public void setVelocityY(int velocityY){
+public void setVelocityY(double velocityY){
     this.velocityY = velocityY;}
 
 }

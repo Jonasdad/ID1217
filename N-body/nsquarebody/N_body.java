@@ -19,4 +19,7 @@ public class N_body {
             rand.nextInt(100), 0,0);
         }
     }
+
+
+   
 }
