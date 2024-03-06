@@ -1,7 +1,4 @@
 import java.util.*;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 public class SpaceStation implements Runnable {
     Random rand = new Random();
@@ -33,27 +30,16 @@ public class SpaceStation implements Runnable {
         SpaceStation station = new SpaceStation();
         station.print_status();
         Thread[] threads = new Thread[8];
+       
         for (int i = 0; i < 8; i++) {
             threads[i] = new Thread(station);
             threads[i].setName("Shuttle " + (i + 1));
             threads[i].start();
         }
-        ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
-        executor.schedule(() -> {
-            for (Thread thread : threads) {
-                try{
-                    thread.interrupt();
-                }
-                catch(Exception e){
-
-                }
-            }
-        }, 30, TimeUnit.SECONDS);
-
         for (Thread thread : threads) {
             try {
                 thread.join();
-            } catch (InterruptedException e) {
+            } catch (Exception e) {
             }
         }
 
@@ -79,6 +65,7 @@ public class SpaceStation implements Runnable {
                     wait();
                     }
                     catch(Exception e ){
+                        e.printStackTrace();
                     }
                 }
             }
@@ -89,6 +76,8 @@ public class SpaceStation implements Runnable {
                         wait();
                     }   
                     catch(Exception e ){
+                        e.printStackTrace();
+
                     }
                 }
             }
@@ -112,6 +101,8 @@ public class SpaceStation implements Runnable {
                 + " waiting for refuel." + RESET);
                 wait();
             } catch (InterruptedException e) {
+                e.printStackTrace();
+
             }
         }
         synchronized (this) {
@@ -135,6 +126,8 @@ public class SpaceStation implements Runnable {
                             + " waiting for refuel." + RESET);
                     wait();
                 } catch (InterruptedException e) {
+                    e.printStackTrace();
+
                 }
             }
             if((nitrogen - nitrogen_requested + 5000) < max_nitrogen){
