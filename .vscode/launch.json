@@ -5,10 +5,24 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "type": "java",
+            "name": "quadtree_try",
+            "request": "launch",
+            "mainClass": "quadtree_try",
+            "projectName": "ID1217_8d99245a"
+        },
+        {
+            "type": "java",
+            "name": "quadTree",
+            "request": "launch",
+            "mainClass": "quadTree",
+            "projectName": "ID1217_8d99245a"
+        },
+        {
             "type": "lldb",
             "request": "launch",
             "name": "Debug",
-            "program": "${workspaceFolder}/<executable file>",
+            "program": "${workspaceFolder}/N_body/quadTree",
             "args": [],
             "cwd": "${workspaceFolder}"
         }

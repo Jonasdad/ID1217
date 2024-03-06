@@ -17,7 +17,6 @@ public body(int ID, int mass, double x, double y, double velocityX, double veloc
     this.velocityY = velocityY;
 }
 
-
 public double getX(){
     return x;
 }
