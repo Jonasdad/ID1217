@@ -17,6 +17,37 @@ public body(int ID, int mass, double x, double y, double velocityX, double veloc
     this.velocityY = velocityY;
 }
 
+
+public void updateVelocity(QuadTree b){
+    body a = this;
+    double dx;
+    double dy; 
+    double distance;
+    double f;
+    if(b.root == null){
+        dx = b.centerOfMassX - a.x;
+        dy = b.centerOfMassY - a.y;
+        distance = Math.sqrt(dx*dx + dy*dy);
+        f  = 1 * a.mass * b.mass_sum / (distance * distance);
+        a.velocityX += f * dx / distance;
+        a.velocityY += f * dy / distance;
+        return;
+    }
+    dx = b.root.x - a.x;
+    dy = b.root.y - a.y;
+    distance = Math.sqrt(dx*dx + dy*dy);
+    f  = (1 * a.mass * b.root.mass) / (distance * distance);
+    a.velocityX += f * dx / distance;
+    a.velocityY += f * dy / distance;   
+}
+
+public double distanceTo(QuadTree tree) {
+
+    double dx = x - tree.centerOfMassX;
+    double dy = y - tree.centerOfMassY;
+    return Math.sqrt(dx*dx + dy*dy);
+}
+
 public double getX(){
     return x;
 }
@@ -25,11 +56,11 @@ public double getY(){
     return y;
 }
 
-public void setX(int x){
+public void setX(double x){
     this.x = x;
 }
 
-public void setY(int y){
+public void setY(double y){
     this.y = y;
 }
 

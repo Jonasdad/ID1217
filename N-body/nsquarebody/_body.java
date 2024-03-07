@@ -1,4 +1,4 @@
-public class body{
+public class _body{
 
 double mass;
 double x;
@@ -8,7 +8,7 @@ double velocityY;
 int ID;
 
 
-public body(int ID, double mass, double x, double y, double velocityX, double velocityY){
+public _body(int ID, double mass, double x, double y, double velocityX, double velocityY){
     this.ID = ID;
     this.mass = mass;
     this.x = x;

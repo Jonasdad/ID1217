@@ -1,5 +1,6 @@
 import java.util.*;
 import java.util.Random;
+import java.util.concurrent.CyclicBarrier;
 import java.lang.*;
 
 public class N_body implements Runnable{
@@ -8,10 +9,15 @@ public class N_body implements Runnable{
     static int numSteps;
     static int numBodies;
     static int numThreads;
+    static double Theta;
+
     static body[] bodies;
     static int treesize = 10000;
     static int counterBodies = 0;
+    static int counter;
     static QuadTree tree;
+    static CyclicBarrier barrier;
+    static int printcounter = 0;
 
     public static void main(String[] args) {
         Random rand = new Random();
@@ -19,10 +25,13 @@ public class N_body implements Runnable{
         // Command Line Arguments
         numBodies = Integer.parseInt(args[0]);
         numThreads = Integer.parseInt(args[1]);
-        numSteps = Integer.parseInt(args[2]);
-
+        numSteps = Integer.parseInt(args[2])*numThreads;
+        Theta = Double.parseDouble(args[3]);
+        long t1 = System.nanoTime();
+        barrier = new CyclicBarrier(numThreads);
         bodies = new body[numBodies];
         tree = new QuadTree(treesize, 0, 0, treesize);
+        tree.Theta = Theta;
         Thread[] threads = new Thread[numThreads];
         N_body nbody = new N_body();
         //  Create n bodies
@@ -50,30 +59,14 @@ public class N_body implements Runnable{
                     e.printStackTrace();
                 }
             }
-            numSteps--;
         }
 
-
-    }
-
-    public double getDistanceSquared(body b1, body b2) {
-        return Math.pow(b1.getX() - b2.getX(), 2) + Math.pow(b1.getY() - b2.getY(), 2);
-    }
-
-    public double calculateForce(body b1, body b2) {
-        double distance = (getDistanceSquared(b1, b2));
-        if (distance == 0) {
-            return 0;
-        }
-        double force = (b1.getMass() * b2.getMass()) / Math.pow(distance, 2); // Assuming G = 1
-        return force;
+        System.out.println(printcounter/4 + " steps completed in " + ((System.nanoTime() - t1)/1_000_000) + " ms");
     }
 
     public void delete(body b){ //deletes a body from the tree
-        if(!inBoundaries(b)){
-            System.out.println(b.ID + " deleted");
-            b = null;
-        }
+        b = null;
+        return;
     }
 
     public boolean inBoundaries(body b){ //returns true if the body is in the boundaries of the map
@@ -81,6 +74,7 @@ public class N_body implements Runnable{
             return true;
         }
         System.out.println(b.ID + " is out of boundaries");
+        delete(b);
         return false;
     }
 
@@ -94,7 +88,51 @@ public class N_body implements Runnable{
                 b = bodies[counterBodies];
                 counterBodies++;
             }
+            for (int i = 0; i < bodies.length; i++) {
+                tree.updateForce(b);
+            }
+        }
+        try {
+            barrier.await();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        while (true) {
+            if (counter == bodies.length) {
+                break;
+            }
+            body b2;
+            synchronized (this) {
+
+                if (counter == bodies.length) {
+                    break;
+                }
+                b2 = bodies[counter];
+                counter++;
+            }
+            b2.setX(b2.x + b2.velocityX);
+            b2.setY(b2.y + b2.velocityY);
+        }
+
+        try {
+            barrier.await();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        counter = 0;
+        counterBodies = 0;
+        synchronized (this) {
+            printcounter++;
+                numSteps--;
+
+        }
+        try {
+            barrier.await();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
 
         }
     }
-}
+

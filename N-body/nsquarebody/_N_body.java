@@ -1,7 +1,7 @@
 import java.util.*;
 import java.util.Random;
 
-public class N_body {
+public class _N_body {
     public static void main(String[] args) {
         System.out.println("Hello, World!");
 

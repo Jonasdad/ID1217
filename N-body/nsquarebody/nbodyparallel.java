@@ -4,7 +4,7 @@ import java.time.*;
 
 public class nbodyparallel implements Runnable {
 
-    static body[] bodies;
+    static _body[] bodies;
     int counterBodies = 0;
     int counter = 0;
     static int numBodies;
@@ -15,21 +15,21 @@ public class nbodyparallel implements Runnable {
     static int printcounter = 0;
 
     public static void main(String[] args) {
-        // Create a new instance of the nbodyparrallel class
-        nbodyparallel nbody = new nbodyparallel();
-        // Run the nbodyparrallel class
+        // Create a new instance of the n_bodyparrallel class
+        nbodyparallel n_body = new nbodyparallel();
+        // Run the n_bodyparrallel class
 
         numBodies = Integer.parseInt(args[0]);
         numThreads = Integer.parseInt(args[1]);
         numSteps = Integer.parseInt(args[2]) * numThreads;
-        bodies = new body[numBodies];
-        body[] bodiesOG = new body[numBodies];
+        bodies = new _body[numBodies];
+        _body[] bodiesOG = new _body[numBodies];
         Random rand = new Random();
         for (int i = 0; i < bodies.length; i++) {
             int x = rand.nextInt(1000);
             int y = rand.nextInt(1000);
-            body b = new body(i + 1, 1, x,y, 0, 0);
-            body b2 = new body(i + 1, 1,x,y,0,0);
+            _body b = new _body(i + 1, 1, x,y, 0, 0);
+            _body b2 = new _body(i + 1, 1,x,y,0,0);
             bodies[i] = b;
             bodiesOG[i] = b2;
         }
@@ -37,7 +37,7 @@ public class nbodyparallel implements Runnable {
         barrier = new CyclicBarrier(numThreads);
         Thread[] threads = new Thread[numThreads];
         for (int i = 0; i < threads.length; i++) {
-            threads[i] = new Thread(nbody);
+            threads[i] = new Thread(n_body);
             threads[i].setName("Thread " + (i + 1));
             threads[i].start();
         }
@@ -52,7 +52,7 @@ public class nbodyparallel implements Runnable {
 
        /*
        for (int i = 0; i < bodies.length; i++) {
-           System.out.println("Body " + bodies[i].ID +" new pos: "+ " X: " + bodies[i].getX() + " Y: " + bodies[i].getY() + " old pos " + " X: " + bodiesOG[i].getX() + " Y: " + bodiesOG[i].getY());
+           System.out.println("_Body " + bodies[i].ID +" new pos: "+ " X: " + bodies[i].getX() + " Y: " + bodies[i].getY() + " old pos " + " X: " + bodiesOG[i].getX() + " Y: " + bodiesOG[i].getY());
         }
         */
         System.out.println(
@@ -60,11 +60,11 @@ public class nbodyparallel implements Runnable {
 
     }
 
-    public double getDistanceSquared(body b1, body b2) {
+    public double getDistanceSquared(_body b1, _body b2) {
         return Math.pow(b1.getX() - b2.getX(), 2) + Math.pow(b1.getY() - b2.getY(), 2);
     }
 
-    public double calculateForce(body b1, body b2) {
+    public double calculateForce(_body b1, _body b2) {
         double distance = (getDistanceSquared(b1, b2));
         if (distance == 0) {
             return 0;
@@ -74,8 +74,8 @@ public class nbodyparallel implements Runnable {
     }
 
     public void run() {
-        // 1. Calculate force on each body
-        body b;
+        // 1. Calculate force on each _body
+        _body b;
         while (numSteps > 0) {
             while (true) {
 
@@ -103,13 +103,13 @@ public class nbodyparallel implements Runnable {
                 e.printStackTrace();
             }
 
-            // 2. Update position of each body
+            // 2. Update position of each _body
 
             while (true) {
                 if (counter == bodies.length) {
                     break;
                 }
-                body b2;
+                _body b2;
                 synchronized (this) {
 
                     if (counter == bodies.length) {

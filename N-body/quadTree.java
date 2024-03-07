@@ -12,13 +12,16 @@ public class QuadTree {
     static int numSubTrees = 0;
     int[] topleft = new int[2];
     int[] botright = new int[2];
+    body bodies[] = new body[240];
+    static int debug = 0;
 
+    double Theta;
     public QuadTree(int botrightX, int botrightY, int topleftX, int topleftY) {
         this.root = null;
-        NW = null;
-        NE = null;
-        SW = null;
-        SE = null;
+        this.NW = null;
+        this.NE = null;
+        this.SW = null;
+        this.SE = null;
         this.topleft[0] = topleftX;
         this.topleft[1] = topleftY;
         this.botright[0] = botrightX;
@@ -63,11 +66,6 @@ public class QuadTree {
             numSubTrees += 4;
             // Push the existing body and the new body into the appropriate child nodes
             
-            if (root.x == b.x && root.y == b.y) {
-                // Slightly adjust the coordinates of the new body
-                b.x += 1;
-                b.y += 1;
-            }
             pushToChild(root);
             pushToChild(b);
             // Set the root of the current node to null
@@ -95,17 +93,66 @@ public class QuadTree {
         }
     }
 
-    
-    public static void main(String[] args) {
-        QuadTree q = new QuadTree(1000, 0, 0, 1000);
-        Random r = new Random();
-        long t1 = System.nanoTime();
-        for (int i = 0; i < 240; i++) {
-          body b = new body(i + 1, 1, r.nextInt(1000),r.nextInt(1000), 0, 0);
-          q.push(b);
+    public void updateForce(body b){
+        if(b == null || b == root){
+            return;
         }
-        System.out.println("Created in: " + (System.nanoTime() - t1)/1_000 + " ms");
-        System.out.println("Number of subtrees: " + numSubTrees);
-        
+        if(isLeaf()){
+            b.updateVelocity(this);
+        }
+        else{
+            double d = b.distanceTo(this);
+            double r = Math.abs(this.botright[0] - this.topleft[0]); //this.botright[0] - this.topleft[0])/2;
+            if((r/d) < Theta){
+                b.updateVelocity(this);
+            }
+            else{
+                if(NW!=null){
+                    NW.updateForce(b);
+                }
+                if(NE!=null){
+                    NE.updateForce(b);
+                }
+                if(SW!=null){
+                    SW.updateForce(b);
+                }
+                if(SE!=null){
+                    SE.updateForce(b);
+                }
+                return;
+            }
+        }
     }
+   /* 
+   public static void main(String[] args) {
+       QuadTree q = new QuadTree(1000, 0, 0, 1000);
+       Random r = new Random();
+       long t1 = System.nanoTime();
+       double[][] original = new double[240][2];
+       double[][] updated = new double[240][2];
+       for (int i = 0; i < 240; i++) {
+           body b = new body(i + 1, 1, r.nextInt(1000),r.nextInt(1000), 0, 0);
+           q.bodies[i] = b;
+           original[i][0] = b.x;
+           original[i][1] = b.y;
+           q.push(b);
+        }
+        
+        for(int i = 0; i < 240; i++){
+            q.updateForce(q.bodies[i]);
+            updated[i][0] = q.bodies[i].x;
+            updated[i][1] = q.bodies[i].y;
+        }
+
+        int counter=0;
+        for(int i = 0; i < 240; i++){
+            if(original[i][0] != updated[i][0] && original[i][1] != updated[i][1]){
+                counter++;
+            }
+        }
+        
+        System.out.println("Number of bodies that moved: " + counter);
+        System.out.println("Time: " + (System.nanoTime() - t1) / 1000000.0 + " ms");      
+    }
+    */ 
 }
