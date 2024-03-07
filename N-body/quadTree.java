@@ -1,18 +1,19 @@
 import java.util.*;
 
-public class quadTree {
+public class QuadTree {
     body root;
     int mass_sum;
     double centerOfMassX;
     double centerOfMassY;
-    quadTree NW;
-    quadTree NE;
-    quadTree SW;
-    quadTree SE;
+    QuadTree NW;
+    QuadTree NE;
+    QuadTree SW;
+    QuadTree SE;
+    static int numSubTrees = 0;
     int[] topleft = new int[2];
     int[] botright = new int[2];
 
-    public quadTree(int botrightX, int botrightY, int topleftX, int topleftY) {
+    public QuadTree(int botrightX, int botrightY, int topleftX, int topleftY) {
         this.root = null;
         NW = null;
         NE = null;
@@ -24,120 +25,87 @@ public class quadTree {
         this.botright[1] = botrightY;
     }
 
+    public boolean isLeaf(){
+        return NW == null && NE == null && SW == null && SE == null; //If all children are null, then it is a leaf
+    }
+
+    
+
     public void push(body b) {
-        // Update the mass and center of mass of the current node
-        // this.centerOfMassX = center_of_mass()[0];
-        // this.centerOfMassY = center_of_mass()[1];
-        
-        if(this.root == null){
-            this.root = b;
+        mass_sum += b.mass;
+        // Update the center of mass
+        centerOfMassX = (centerOfMassX * (mass_sum - b.mass) + b.x * b.mass) / mass_sum;
+        centerOfMassY = (centerOfMassY * (mass_sum - b.mass) + b.y * b.mass) / mass_sum;
+        if (root == null && isLeaf()) {
+            root = b;
             return;
         }
-        else{
+        if(!isLeaf()){
+            pushToChild(b);
+        }
+        else {
+            if (Math.abs(topleft[0] - botright[0]) <= 5 && Math.abs(topleft[1]- botright[1]) <= 5) {
+                if(root == null){
+                    root = b;
+                    return;
+                }
+                root.mass += b.mass;
+                b = null;
+                return;
+            }
+            // Create the child nodes
+            int centerX = (topleft[0] + botright[0]) / 2;
+            int centerY = (topleft[1] + botright[1]) / 2;
+            NW = new QuadTree(centerX, centerY, topleft[0], topleft[1]);
+            SW = new QuadTree(topleft[0], centerY, centerX, botright[1]);
+            NE = new QuadTree(botright[0], centerY, centerX, topleft[1]);
+            SE = new QuadTree(botright[0], botright[1], centerX, centerY);
+            numSubTrees += 4;
+            // Push the existing body and the new body into the appropriate child nodes
             
-        }
-        int centerX = this.topleft[0] + (this.botright[0] - this.topleft[0]) / 2;
-        int centerY = this.topleft[1] + (this.botright[1] - this.topleft[1]) / 2;
-
-        if (b.getX() <= centerX) { // if the body is in the left half
-            if (b.getY() >= centerY) { // if the body is in the top half
-                if (this.NW == null) {
-                    this.NW = new quadTree(centerX, centerY, this.topleft[0], this.topleft[1]);
-                    this.NW.push(b);
-                }
-            } else {
-                if (this.SW == null) {
-                    this.SW = new quadTree(this.topleft[0], centerY, centerX, this.botright[1]);
-                    this.SW.push(b);
-                }
+            if (root.x == b.x && root.y == b.y) {
+                // Slightly adjust the coordinates of the new body
+                b.x += 1;
+                b.y += 1;
             }
-        } else {
-            if (b.getY() >= centerY) {
-                if (this.NE == null) {
-                    this.NE = new quadTree(this.botright[0], centerY, centerX, this.topleft[1]);
-                    this.NE.push(b);
-                }
+            pushToChild(root);
+            pushToChild(b);
+            // Set the root of the current node to null
+            root = null;
+        }
+    }
+    
+    private void pushToChild(body b) {
+        if (((botright[0] + topleft[0]) / 2) >= b.x) { // if x is less than the middle
+            if (((botright[1] + topleft[1]) / 2) <= b.y) { // if y is greater than the middle
+                // push to NW
+                NW.push(b);
             } else {
-                if (this.SE == null) {
-                    this.SE = new quadTree(this.botright[0], this.botright[1], centerX, centerY);
-                    this.SE.push(b);
-                }
+                // push to SW
+                SW.push(b);
+            }
+        } else { // if x is greater than the middle
+            if (((botright[1] + topleft[1]) / 2) <= b.y) { // if y is greater than the middle
+                // push to NE
+                NE.push(b);
+            } else { // if y is less than the middle
+                // push to SE
+                SE.push(b);
             }
         }
-
-        // If the current node is a leaf node, store the body
-
     }
 
-    public boolean inBoundaries(body b) {
-        if (b.x >= this.topleft[0] && b.x <= this.botright[0] && b.y >= this.topleft[1] && b.y <= this.botright[1]) {
-            return true;
-        }
-        return false;
-    }
-
-    public boolean isLeaf(quadTree tree) {
-        if (tree.NW == null && tree.NE == null && tree.SW == null && tree.SE == null) {
-            return true;
-        }
-        return false;
-    }
-
-    public double[] center_of_mass() {
-        double totalMass = 0;
-        double[] centerOfMass = new double[3]; // [center_of_mass_x, center_of_mass_y, mass]
-        if (root != null) {
-            totalMass += root.getMass();
-            centerOfMass[0] += root.getMass() * root.getX();
-            centerOfMass[1] += root.getMass() * root.getY();
-        }
-        if (NW != null) {
-            double[] NWCenterOfMass = NW.center_of_mass();
-            totalMass += NWCenterOfMass[2];
-            centerOfMass[0] += NWCenterOfMass[0] * NWCenterOfMass[2];
-            centerOfMass[1] += NWCenterOfMass[1] * NWCenterOfMass[2];
-        }
-        if (NE != null) {
-            double[] NECenterOfMass = NE.center_of_mass();
-            totalMass += NECenterOfMass[2];
-            centerOfMass[0] += NECenterOfMass[0] * NECenterOfMass[2];
-            centerOfMass[1] += NECenterOfMass[1] * NECenterOfMass[2];
-        }
-        if (SW != null) {
-            double[] SWCenterOfMass = SW.center_of_mass();
-            totalMass += SWCenterOfMass[2];
-            centerOfMass[0] += SWCenterOfMass[0] * SWCenterOfMass[2];
-            centerOfMass[1] += SWCenterOfMass[1] * SWCenterOfMass[2];
-        }
-        if (SE != null) {
-            double[] SECenterOfMass = SE.center_of_mass();
-            totalMass += SECenterOfMass[2];
-            centerOfMass[0] += SECenterOfMass[0] * SECenterOfMass[2];
-            centerOfMass[1] += SECenterOfMass[1] * SECenterOfMass[2];
-        }
-        if (totalMass > 0) {
-            centerOfMass[0] /= totalMass;
-            centerOfMass[1] /= totalMass;
-            centerOfMass[2] = totalMass;
-        }
-        return centerOfMass;
-    }
-
+    
     public static void main(String[] args) {
-        quadTree q = new quadTree(10000, 0, 0, 10000);
+        QuadTree q = new QuadTree(1000, 0, 0, 1000);
         Random r = new Random();
-
         long t1 = System.nanoTime();
-        for (int i = 0; i < 10; i++) {
-            body b = new body(i + 1, 1, r.nextInt(10000), r.nextInt(10000), 0, 0);
-            q.push(b);
-            System.out.println("Inserted: " + b.ID + " at " + b.getX() + ", " + b.getY());
+        for (int i = 0; i < 240; i++) {
+          body b = new body(i + 1, 1, r.nextInt(1000),r.nextInt(1000), 0, 0);
+          q.push(b);
         }
-        System.out.println("hej");
-        // System.out.println("Main Root: " + q.NE.root.ID);
-        // System.out.println("Time: " + ((System.nanoTime() - t1)/1_000) + " micro
-        // seconds");
-        // System.out.println("Center of Mass: " + centerOfMass[0] + ", " +
-        // centerOfMass[1] + ", Mass: " + centerOfMass[2]);
+        System.out.println("Created in: " + (System.nanoTime() - t1)/1_000 + " ms");
+        System.out.println("Number of subtrees: " + numSubTrees);
+        
     }
 }

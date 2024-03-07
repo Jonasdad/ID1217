@@ -11,7 +11,7 @@ public class N_body implements Runnable{
     static body[] bodies;
     static int treesize = 10000;
     static int counterBodies = 0;
-    static quadTree tree;
+    static QuadTree tree;
 
     public static void main(String[] args) {
         Random rand = new Random();
@@ -22,7 +22,7 @@ public class N_body implements Runnable{
         numSteps = Integer.parseInt(args[2]);
 
         bodies = new body[numBodies];
-        tree = new quadTree(treesize, 0, 0, treesize);
+        tree = new QuadTree(treesize, 0, 0, treesize);
         Thread[] threads = new Thread[numThreads];
         N_body nbody = new N_body();
         //  Create n bodies
@@ -33,7 +33,7 @@ public class N_body implements Runnable{
             tree.push(b);
         }
         while(numSteps > 0){ //run the simulation for numSteps
-            quadTree updatedTree = new quadTree(treesize, 0, 0, treesize);//create a new tree for the updated bodies
+            QuadTree updatedTree = new QuadTree(treesize, 0, 0, treesize);//create a new tree for the updated bodies
             for(int i = 0; i < numBodies; i++){ //insert the updated bodies into the new tree
                 updatedTree.push(bodies[i]);  
             }
