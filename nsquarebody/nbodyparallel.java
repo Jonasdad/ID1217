@@ -26,8 +26,8 @@ public class nbodyparallel implements Runnable {
         _body[] bodiesOG = new _body[numBodies];
         Random rand = new Random();
         for (int i = 0; i < bodies.length; i++) {
-            int x = rand.nextInt(1000);
-            int y = rand.nextInt(1000);
+            int x = rand.nextInt(10000);
+            int y = rand.nextInt(10000);
             _body b = new _body(i + 1, 1, x,y, 0, 0);
             _body b2 = new _body(i + 1, 1,x,y,0,0);
             bodies[i] = b;

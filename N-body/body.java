@@ -3,10 +3,10 @@ public class body{
 double mass;
 double x;
 double y;
-double velocityX;
-double velocityY;
+volatile double velocityX;
+volatile double velocityY;
 int ID;
-
+final private double G = 6.674 * Math.pow(10, -11);
 
 public body(int ID, int mass, double x, double y, double velocityX, double velocityY){
     this.ID = ID;
@@ -28,7 +28,7 @@ public void updateVelocity(QuadTree b){
         dx = b.centerOfMassX - a.x;
         dy = b.centerOfMassY - a.y;
         distance = Math.sqrt(dx*dx + dy*dy);
-        f  = 1 * a.mass * b.mass_sum / (distance * distance);
+        f  = G * a.mass * b.mass_sum / (distance * distance);
         a.velocityX += f * dx / distance;
         a.velocityY += f * dy / distance;
         return;
