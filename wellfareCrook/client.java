@@ -26,7 +26,7 @@ public class client {
     }
     
     private static String processName(String name) {
-        String[] names = {"Jonas", "Deniel", "Roy", "Alice", "Isabelle", "Bob"};
+        String[] names = {"Jonas", "Deniel", "Roy", "Alice", "Isabelle", "Jordan"};
         // Replace this with your actual processing code
         for(int i = 0; i < names.length; i++){
             if(names[i].equals(name)){
