@@ -35,10 +35,11 @@ public class QuadTree {
     
 
     public void push(body b) {
-        mass_sum += b.mass;
         // Update the center of mass
-        centerOfMassX = (centerOfMassX * (mass_sum - b.mass) + b.x * b.mass) / mass_sum;
-        centerOfMassY = (centerOfMassY * (mass_sum - b.mass) + b.y * b.mass) / mass_sum;
+        centerOfMassX = (centerOfMassX * mass_sum + b.x * b.mass) / (mass_sum + b.mass);
+        centerOfMassY = (centerOfMassY * mass_sum + b.y * b.mass) / (mass_sum + b.mass);
+        mass_sum += b.mass;
+       // System.out.println(this.centerOfMassX + " " + this.centerOfMassY);
         if (root == null && isLeaf()) {
             root = b;
             return;
@@ -96,7 +97,7 @@ public class QuadTree {
     }
 
     public void updateForce(body b){
-        if(b == null || b == root){
+        if(b == null || b == root || this == null){
             return;
         }
         if(isLeaf()){
@@ -107,6 +108,7 @@ public class QuadTree {
             double r = Math.abs(this.botright[0] - this.topleft[0]); //this.botright[0] - this.topleft[0])/2;
             if((r/d) < Theta){
                 b.updateVelocity(this);
+                return;
             }
             else{
                 if(NW!=null){

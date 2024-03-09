@@ -2,7 +2,7 @@ import java.util.*;
 import java.util.concurrent.CyclicBarrier;
 
 public class N_body implements Runnable {
-    static int size = 100000;
+    static int size = 1000;
     // command line arguments
     static int numBodies;
     static int numSteps;
@@ -111,7 +111,7 @@ public class N_body implements Runnable {
                 initTree.updateForce(b);
                 b.x += b.velocityX;
                 b.y += b.velocityY;
-
+            
 
         }
         try{

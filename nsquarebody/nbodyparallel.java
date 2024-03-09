@@ -50,11 +50,11 @@ public class nbodyparallel implements Runnable {
             }
         }
 
-       /*
+       
        for (int i = 0; i < bodies.length; i++) {
            System.out.println("_Body " + bodies[i].ID +" new pos: "+ " X: " + bodies[i].getX() + " Y: " + bodies[i].getY() + " old pos " + " X: " + bodiesOG[i].getX() + " Y: " + bodiesOG[i].getY());
         }
-        */
+        
         System.out.println(
                 printcounter + " steps completed in " + ((System.nanoTime() - t1)/1_000_000) + " ms");
 
