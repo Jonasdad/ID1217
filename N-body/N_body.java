@@ -1,6 +1,5 @@
 import java.util.*;
 import java.util.concurrent.CyclicBarrier;
-import java.util.random.*;
 
 public class N_body implements Runnable {
     static int size = 100000;
@@ -17,6 +16,7 @@ public class N_body implements Runnable {
 
     public static void main(String[] args) {
         N_body n = new N_body();
+        Random r = new Random();
         numBodies = Integer.parseInt(args[0]);
         numThreads = Integer.parseInt(args[1]);
         numSteps = Integer.parseInt(args[2]);
@@ -25,17 +25,17 @@ public class N_body implements Runnable {
         initTree.Theta = theta;
         bodies = new body[numBodies];
         barrier = new CyclicBarrier(numThreads+1);
-        CyclicBarrier mainBarrier = new CyclicBarrier(5);
 
         Thread[] threads = new Thread[numThreads];
         for (int i = 0; i < numBodies; i++) {
-            bodies[i] = new body(i + 1, 1, Math.random() * size, Math.random() * size, 0, 0);
+            bodies[i] = new body(i + 1, r.nextInt(1000), Math.random()*size, Math.random()*size, 0, 0);
             initTree.push(bodies[i]);
         }
         long t0 = System.nanoTime();
 
 
         for (int ii = 0; ii < numSteps; ii++) { 
+         
             System.out.println("Starting run " + (ii+1) + "...");
             long t1 = System.nanoTime();
             for (int i = 0; i < numThreads; i++) {
@@ -64,6 +64,7 @@ public class N_body implements Runnable {
            // System.out.println("Pushed bodies to tree in " + (t2 - t4) / 1000 + "ms");
            // System.out.println("Run " + (ii+1) + " took " + (t2 - t1) / 1000 + "ms");
         }
+        
         System.out.println("Total runtime : " + (System.nanoTime() - t0) / 1000000 + "ms");
         for(int i = 0; i < numThreads; i++){
             try{

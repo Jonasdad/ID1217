@@ -46,16 +46,18 @@ public class QuadTree {
         if(!isLeaf()){
             pushToChild(b);
         }
-        else {
-            if (Math.abs(topleft[0] - botright[0]) <= 5 && Math.abs(topleft[1]- botright[1]) <= 5) {
-                if(root == null){
-                    root = b;
-                    return;
+        else { 
+           if (Math.abs(topleft[0] - botright[0]) <= 1 && Math.abs(topleft[1]- botright[1]) <= 1) {
+               if(root == null){
+                   root = b;
+                   return;
                 }
                 root.mass += b.mass;
+                b.mass = 0;
                 b = null;
                 return;
             }
+            
             // Create the child nodes
             int centerX = (topleft[0] + botright[0]) / 2;
             int centerY = (topleft[1] + botright[1]) / 2;

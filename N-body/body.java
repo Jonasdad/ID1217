@@ -28,7 +28,7 @@ public void updateVelocity(QuadTree b){
         dx = b.centerOfMassX - a.x;
         dy = b.centerOfMassY - a.y;
         distance = Math.sqrt(dx*dx + dy*dy);
-        f  = G * a.mass * b.mass_sum / (distance * distance);
+        f  = 1* a.mass * b.mass_sum / (distance * distance);
         a.velocityX += f * dx / distance;
         a.velocityY += f * dy / distance;
         return;
