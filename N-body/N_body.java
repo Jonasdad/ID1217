@@ -36,7 +36,7 @@ public class N_body implements Runnable {
 
         for (int ii = 0; ii < numSteps; ii++) { 
          
-            System.out.println("Starting run " + (ii+1) + "...");
+            //System.out.println("Starting run " + (ii+1) + "...");
             long t1 = System.nanoTime();
             for (int i = 0; i < numThreads; i++) {
                 threads[i] = new Thread(n);
@@ -54,8 +54,7 @@ public class N_body implements Runnable {
             threadCounter = 0;
             initTree = null;
             initTree = new QuadTree(size, 0, 0, size);
-            long t4 = System.nanoTime();
-
+            initTree.Theta = theta;
             for (int i = 0; i < numBodies; i++) {
                 initTree.push(bodies[i]);
             }
