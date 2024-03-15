@@ -1,0 +1,1 @@
+ID1217 - A concurrent programming course given at KTH. In this repository you'll find several different concurrent and parallelism techniques for standalone environment as well as distributed systems.
